@@ -15,7 +15,7 @@ This project maps the complex relationships between stakeholders, their interest
 - Data export capabilities
 
 ## Data Sources
-- U.S. Department of Energy reports
+- Energy reports
 - Company annual reports and press releases
 - Industry analysis and news articles
 - Government policy documents
