@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charging Ecosystem Stakeholder Network</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .abstract {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        select, button {
+            padding: 8px 12px;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            background: white;
+            color: #2c3e50;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+        
+        #network {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            background: white;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+        
+        .info-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #27ae60;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EV Charging Ecosystem</h1>
+        <p class="subtitle">Stakeholder Network Analysis</p>
+        
+        <div class="abstract">
+            <strong>Abstract:</strong> This interactive network visualization displays the complex relationships between stakeholders in the electric vehicle charging ecosystem. The network shows how different actors (stakeholders), their interests, and required actions interconnect to create a functioning EV charging infrastructure. Each node represents either a stakeholder, an interest, or an action, with edges showing the relationships and dependencies between them.
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="nodeFilter">Filter by type:</label>
+                <select id="nodeFilter">
+                    <option value="all">All Nodes</option>
+                    <option value="stakeholder">Stakeholders</option>
+                    <option value="interest">Interests</option>
+                    <option value="action">Actions</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="stakeholderFilter">Focus on stakeholder:</label>
+                <select id="stakeholderFilter">
+                    <option value="all">All Stakeholders</option>
+                </select>
+            </div>
+            <button onclick="resetView()">Reset View</button>
+            <button onclick="fitNetwork()">Fit to Screen</button>
+        </div>
+        
+        <div id="network"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>Stakeholders</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Interests</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #27ae60;"></div>
+                <span>Actions</span>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <strong>How to use:</strong> 
+            <ul>
+                <li>Click and drag nodes to rearrange the network</li>
+                <li>Use mouse wheel to zoom in/out</li>
+                <li>Click on nodes to see detailed information</li>
+                <li>Use filters to focus on specific types of nodes or stakeholders</li>
+                <li>Hover over connections to see relationship types</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Interactive EV Charging Stakeholder Network | Built with vis.js</p>
+        </div>
+    </div>
+
+    <script>
+        // Define the network data
+        const nodes = new vis.DataSet([
+            // Stakeholders (red)
+            {id: 'cpo', label: 'Charging Point\nOperator (CPO)', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'emsp', label: 'E-Mobility Service\nProvider (eMSP)', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'utility', label: 'Utility Company', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'oem', label: 'Vehicle\nManufacturer', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'driver', label: 'EV Driver', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'regulator', label: 'Government/\nRegulator', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'propertyowner', label: 'Property Owner', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'fleet', label: 'Fleet Operator', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            {id: 'techprovider', label: 'Technology\nProvider', group: 'stakeholder', color: '#e74c3c', shape: 'box'},
+            
+            // Interests (orange)
+            {id: 'revenue', label: 'Revenue\nGeneration', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'reliability', label: 'System\nReliability', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'convenience', label: 'User\nConvenience', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'sustainability', label: 'Environmental\nSustainability', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'gridstability', label: 'Grid\nStability', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'marketgrowth', label: 'Market\nGrowth', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'costefficiency', label: 'Cost\nEfficiency', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'datainsights', label: 'Data &\nInsights', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            {id: 'compliance', label: 'Regulatory\nCompliance', group: 'interest', color: '#f39c12', shape: 'ellipse'},
+            
+            // Actions (green)
+            {id: 'installstations', label: 'Install Charging\nStations', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'smartcharging', label: 'Implement Smart\nCharging', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'roaming', label: 'Enable\nRoaming', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'maintenance', label: 'Perform\nMaintenance', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'pricing', label: 'Optimize\nPricing', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'loadmgmt', label: 'Load\nManagement', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'userapp', label: 'Develop User\nApplications', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'standards', label: 'Adopt\nStandards', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'analytics', label: 'Data\nAnalytics', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'integration', label: 'Vehicle\nIntegration', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'permits', label: 'Obtain\nPermits', group: 'action', color: '#27ae60', shape: 'diamond'},
+            {id: 'gridupgrade', label: 'Grid\nUpgrade', group: 'action', color: '#27ae60', shape: 'diamond'}
+        ]);
+
+        const edges = new vis.DataSet([
+            // Stakeholder to Interest relationships
+            {from: 'cpo', to: 'revenue', label: 'seeks'},
+            {from: 'cpo', to: 'reliability', label: 'ensures'},
+            {from: 'emsp', to: 'convenience', label: 'provides'},
+            {from: 'emsp', to: 'revenue', label: 'seeks'},
+            {from: 'utility', to: 'gridstability', label: 'maintains'},
+            {from: 'utility', to: 'revenue', label: 'seeks'},
+            {from: 'oem', to: 'marketgrowth', label: 'drives'},
+            {from: 'oem', to: 'integration', label: 'enables'},
+            {from: 'driver', to: 'convenience', label: 'demands'},
+            {from: 'driver', to: 'costefficiency', label: 'seeks'},
+            {from: 'regulator', to: 'sustainability', label: 'promotes'},
+            {from: 'regulator', to: 'compliance', label: 'enforces'},
+            {from: 'propertyowner', to: 'revenue', label: 'seeks'},
+            {from: 'fleet', to: 'costefficiency', label: 'optimizes'},
+            {from: 'fleet', to: 'reliability', label: 'requires'},
+            {from: 'techprovider', to: 'datainsights', label: 'provides'},
+            
+            // Interest to Action relationships
+            {from: 'revenue', to: 'installstations', label: 'drives'},
+            {from: 'revenue', to: 'pricing', label: 'optimizes'},
+            {from: 'reliability', to: 'maintenance', label: 'requires'},
+            {from: 'convenience', to: 'userapp', label: 'enables'},
+            {from: 'convenience', to: 'roaming', label: 'facilitates'},
+            {from: 'gridstability', to: 'loadmgmt', label: 'requires'},
+            {from: 'gridstability', to: 'smartcharging', label: 'enables'},
+            {from: 'sustainability', to: 'smartcharging', label: 'promotes'},
+            {from: 'marketgrowth', to: 'standards', label: 'requires'},
+            {from: 'costefficiency', to: 'smartcharging', label: 'achieves'},
+            {from: 'datainsights', to: 'analytics', label: 'generates'},
+            {from: 'compliance', to: 'permits', label: 'requires'},
+            
+            // Action dependencies (pre-actions)
+            {from: 'permits', to: 'installstations', label: 'enables', dashes: true},
+            {from: 'gridupgrade', to: 'installstations', label: 'supports', dashes: true},
+            {from: 'standards', to: 'roaming', label: 'enables', dashes: true},
+            {from: 'integration', to: 'smartcharging', label: 'enables', dashes: true},
+            {from: 'analytics', to: 'pricing', label: 'informs', dashes: true},
+            {from: 'loadmgmt', to: 'smartcharging', label: 'coordinates', dashes: true},
+            
+            // Cross-stakeholder relationships
+            {from: 'cpo', to: 'emsp', label: 'partners with', color: '#9b59b6'},
+            {from: 'cpo', to: 'utility', label: 'coordinates with', color: '#9b59b6'},
+            {from: 'emsp', to: 'driver', label: 'serves', color: '#9b59b6'},
+            {from: 'oem', to: 'driver', label: 'sells to', color: '#9b59b6'},
+            {from: 'techprovider', to: 'cpo', label: 'supplies', color: '#9b59b6'}
+        ]);
+
+        // Network options
+        const options = {
+            nodes: {
+                font: {
+                    size: 14,
+                    face: 'Segoe UI',
+                    color: '#333'
+                },
+                borderWidth: 2,
+                shadow: true,
+                chosen: {
+                    node: function(values, id, selected, hovering) {
+                        values.shadowSize = 10;
+                        values.shadowColor = 'rgba(0,0,0,0.3)';
+                    }
+                }
+            },
+            edges: {
+                font: {
+                    size: 12,
+                    align: 'middle'
+                },
+                arrows: {
+                    to: {enabled: true, scaleFactor: 0.5}
+                },
+                smooth: {
+                    type: 'dynamic'
+                },
+                color: {
+                    color: '#7f8c8d',
+                    highlight: '#2c3e50',
+                    hover: '#34495e'
+                }
+            },
+            physics: {
+                enabled: true,
+                stabilization: {iterations: 200},
+                barnesHut: {
+                    gravitationalConstant: -8000,
+                    centralGravity: 0.3,
+                    springLength: 120,
+                    springConstant: 0.04,
+                    damping: 0.09
+                }
+            },
+            interaction: {
+                hover: true,
+                hoverConnectedEdges: true,
+                selectConnectedEdges: false
+            }
+        };
+
+        // Initialize network
+        const container = document.getElementById('network');
+        const data = {nodes: nodes, edges: edges};
+        const network = new vis.Network(container, data, options);
+
+        // Populate stakeholder filter
+        const stakeholderFilter = document.getElementById('stakeholderFilter');
+        const stakeholders = nodes.get({filter: function(item) { return item.group === 'stakeholder'; }});
+        stakeholders.forEach(stakeholder => {
+            const option = document.createElement('option');
+            option.value = stakeholder.id;
+            option.text = stakeholder.label.replace('\n', ' ');
+            stakeholderFilter.appendChild(option);
+        });
+
+        // Filter functionality
+        document.getElementById('nodeFilter').addEventListener('change', function() {
+            const filterValue = this.value;
+            if (filterValue === 'all') {
+                nodes.update(nodes.get().map(node => ({...node, hidden: false})));
+            } else {
+                nodes.update(nodes.get().map(node => ({
+                    ...node, 
+                    hidden: node.group !== filterValue
+                })));
+            }
+        });
+
+        document.getElementById('stakeholderFilter').addEventListener('change', function() {
+            const stakeholderId = this.value;
+            if (stakeholderId === 'all') {
+                nodes.update(nodes.get().map(node => ({...node, hidden: false})));
+                edges.update(edges.get().map(edge => ({...edge, hidden: false})));
+            } else {
+                // Show selected stakeholder and connected nodes
+                const connectedNodes = network.getConnectedNodes(stakeholderId);
+                const connectedEdges = network.getConnectedEdges(stakeholderId);
+                
+                nodes.update(nodes.get().map(node => ({
+                    ...node, 
+                    hidden: node.id !== stakeholderId && !connectedNodes.includes(node.id)
+                })));
+                
+                edges.update(edges.get().map(edge => ({
+                    ...edge,
+                    hidden: !connectedEdges.includes(edge.id)
+                })));
+            }
+        });
+
+        // Utility functions
+        function resetView() {
+            document.getElementById('nodeFilter').value = 'all';
+            document.getElementById('stakeholderFilter').value = 'all';
+            nodes.update(nodes.get().map(node => ({...node, hidden: false})));
+            edges.update(edges.get().map(edge => ({...edge, hidden: false})));
+            network.fit();
+        }
+
+        function fitNetwork() {
+            network.fit({
+                animation: {
+                    duration: 1000,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        }
+
+        // Network event handlers
+        network.on('click', function(params) {
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                const node = nodes.get(nodeId);
+                console.log('Clicked node:', node);
+                // You can add more detailed information display here
+            }
+        });
+
+        // Initial fit
+        network.once('stabilized', function() {
+            fitNetwork();
+        });
+    </script>
+</body>
+</html>
